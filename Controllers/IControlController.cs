@@ -393,6 +393,7 @@ namespace ViewPointAPI.Controllers
                                 row.Add("Name", Name);
                                 row.Add("UserValidated", "true");
                                 row.Add("UserID", user.SamAccountName);
+                                
                                 row.Add("SessionID", -1);
                                 rows.Add(row);
 
