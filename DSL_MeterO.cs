@@ -116,6 +116,81 @@ namespace ViewPointAPI
 
 
         }
+        // gets list of equipments assigned to an employee 
+        public DataTable getPersonalEquipments(string employeeID)
+        {
+            if(employeeID!=null)
+            {
+                DataTable dt_viewPoint;
+                DataTable dt_MeterO;
+                using (SqlConnection VpointDBConn = new SqlConnection(WebConfigurationManager.ConnectionStrings["viewPointDBConnection"].ToString()))
+                {
+                    VpointDBConn.Open();
+                    SqlDataAdapter adap = new SqlDataAdapter("SELECT [Equipment],[VINNumber] as SerialNo,[Description],[LicensePlateNo] as LicenseNumber,[HourReading],[OdoReading] ,[udJobSiteAssignment] as JobAssign ,[udReferenceNumber],udMeterFieldNotes as Notes from Viewpoint.dbo.EMEM where Operator='" + employeeID + "' and EMCo='53' and udMeterType='Metered'", VpointDBConn);
+                    dt_viewPoint = new DataTable();
+                    adap.Fill(dt_viewPoint);
+                    VpointDBConn.Dispose();
+                    dt_viewPoint.Columns.Add("NewHr", typeof(string));
+                    dt_viewPoint.Columns.Add("NewOdo", typeof(string));
+                    dt_viewPoint.Columns.Add("Job", typeof(string));
+                    dt_viewPoint.Columns.Add("CreatedBy", typeof(string));
+                    dt_viewPoint.Columns.Add("CreatedDate", typeof(string));
+                    dt_viewPoint.Columns.Add("Saved_MeterO", typeof(string));
+                    dt_viewPoint.Columns.Add("HasNotes", typeof(string));
+                    foreach (DataRow row in dt_viewPoint.Rows)
+                    {
+                        row["NewHr"] = "";
+                        row["NewOdo"] = "";
+                        row["Job"] = "";
+                        row["CreatedBy"] = "";
+                        row["CreatedDate"] = "";
+                        row["Saved_MeterO"] = "false";
+                        if (row["Notes"] != DBNull.Value)
+                        {
+                            row["HasNotes"] = "true";
+
+                        }
+                        else
+                        {
+                            row["HasNotes"] = "false";
+
+                        }
+
+                    }
+
+                }
+                //using (SqlConnection IeaPoweAppsconn = new SqlConnection(WebConfigurationManager.ConnectionStrings["IEAPowerApps-DBConnection"].ToString()))
+                //{
+                //    IeaPoweAppsconn.Open();
+                //    SqlDataAdapter adap = new SqlDataAdapter("SELECT [MBatchID],[Equipment],[SerialNo],[Description],[LicenseNumber],[HourReading] ,[OdoReading] ,[udJobSiteAssignment],[udReferenceNumber],[NewHr],[NewOdo],[Job] FROM MeterOTransaction where Job='" + JobID + "'", IeaPoweAppsconn);
+                //    dt_MeterO = new DataTable();
+                //    adap.Fill(dt_MeterO);
+                //}
+                //foreach (DataRow row in dt_viewPoint.Rows)
+                //{
+                //    string equipment_Vpoint = Convert.ToString(row["Equipment"]);
+                //    string serialno_Vpoint = Convert.ToString(row["SerialNo"]);
+                //    DataRow[] filteredRow = dt_MeterO.Select("Equipment='" + equipment_Vpoint + "' and SerialNo='" + serialno_Vpoint + "'");
+                //    if (filteredRow.Length > 0)
+                //    {
+                //        row["NewHr"] = Convert.ToString(filteredRow[0]["NewHr"]);
+                //        row["NewOdo"] = Convert.ToString(filteredRow[0]["NewOdo"]);
+                //        row["Saved_MeterO"] = "true";
+                //    }
+
+                //}
+                return dt_viewPoint;
+
+            }
+            else
+            {
+                return null;
+            }
+            
+
+
+        }
+
         public DataTable reviewEquipmentEntry(string JobID)
         {
 
@@ -426,6 +501,95 @@ namespace ViewPointAPI
             else
                 return -1;
 
+        }
+        public int saveTrip(JArray json)
+        {
+            JObject insertItem = (JObject)json[0];
+            if (insertItem != null)
+            {
+                using (SqlConnection viewpointDBConnection = new SqlConnection(WebConfigurationManager.ConnectionStrings["viewPointDBConnection"].ToString()))
+                {
+
+                    SqlCommand cmd = new SqlCommand("[dbo].[ud_spInsertMeteroDailyLogSS]", viewpointDBConnection);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@PrCo", Convert.ToInt32(insertItem["PrCo"]));
+                    cmd.Parameters.AddWithValue("@EmpID", Convert.ToInt32(insertItem["EmployeeID"]));
+                    cmd.Parameters.AddWithValue("@Email", Convert.ToString(insertItem["EmailID"]));
+                    cmd.Parameters.AddWithValue("@EquipmentID", Convert.ToString(insertItem["EquipmentID"]));
+                    cmd.Parameters.AddWithValue("@EmCo", Convert.ToInt32(insertItem["EquipmentCompany"]));
+                    cmd.Parameters.AddWithValue("@EquipDesc", Convert.ToString(insertItem["EquipmentDesc"]));
+                    cmd.Parameters.AddWithValue("@TripDate", Convert.ToString(insertItem["TDate"]));
+                    cmd.Parameters.AddWithValue("@TripDesc", Convert.ToString(insertItem["TDesc"]));
+                    cmd.Parameters.AddWithValue("@TripFrom", Convert.ToString(insertItem["TFrom"]));
+                    cmd.Parameters.AddWithValue("@TripTo", Convert.ToString(insertItem["TTo"]));
+                    cmd.Parameters.AddWithValue("@TripCat", Convert.ToString(insertItem["TCat"]));
+                    cmd.Parameters.AddWithValue("@TripMiles", Convert.ToString(insertItem["TMiles"]));
+                    cmd.Parameters.AddWithValue("@SubmittedDate", Convert.ToString(insertItem["TSubmittedDate"]));
+                    cmd.Parameters.AddWithValue("@Status", Convert.ToString(insertItem["TStatus"]));
+                    cmd.Parameters.AddWithValue("@CreatedBy", Convert.ToString(insertItem["TCreatedBy"]));
+                    cmd.Parameters.AddWithValue("@CreatedDate", Convert.ToString(insertItem["TCreatedDate"]));
+
+                    try
+                    {
+                        cmd.Connection = viewpointDBConnection;
+                        viewpointDBConnection.Open();
+                        int insertedRows = Convert.ToInt32(cmd.ExecuteNonQuery());
+                        if (insertedRows == 1)
+                        {
+                            return 1;
+                        }
+                        else
+                        {
+                            return -1;
+                        };
+
+
+
+                    }
+                    catch (SqlException ex)
+                    {
+                        viewpointDBConnection.Dispose();
+                        return -1; ;
+                    }
+                    finally
+                    {
+                        viewpointDBConnection.Dispose();
+
+                    }
+                }
+            }
+
+
+            else
+            {
+                return -1;
+            }
+        }
+
+
+            
+        
+        //fetches pending trip logs from viewpoint
+        public DataTable fetchPendingDailyogs(string employeeID, string company)
+        {
+            DataTable dt = new DataTable();
+            if (employeeID!=null && company!=null)
+            {
+                using (SqlConnection viewpointDBConnection = new SqlConnection(WebConfigurationManager.ConnectionStrings["viewPointDBConnection"].ToString()))
+                {
+                    viewpointDBConnection.Open();
+                    string query = "select  * from   [Viewpoint].[IEA\\ssharma].udMeterODailyLog where EmployeeID=" +Convert.ToInt32(employeeID) + " and Status='Saved' and PrCo=" + Convert.ToInt32(company);
+                    SqlDataAdapter adap = new SqlDataAdapter(query, viewpointDBConnection);
+                    adap.Fill(dt);
+                    viewpointDBConnection.Close();
+
+
+
+                }
+
+            }
+            
+            return dt;
         }
 
 

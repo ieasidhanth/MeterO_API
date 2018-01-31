@@ -14,6 +14,7 @@ using System.Web.Mail;
 using System.Net.Mail;
 using System.Text;
 using System.Web.Configuration;
+using System.DirectoryServices;
 
 namespace ViewPointAPI.Controllers
 {
@@ -68,6 +69,73 @@ namespace ViewPointAPI.Controllers
                 }
                 rows.Add(row);
             }
+
+            return rows;
+
+
+        }
+        [HttpPost]
+        public List<Dictionary<string, object>> getPersonalEquipments(HttpRequestMessage req)
+        {
+            var postedString = req.Content.ReadAsStringAsync().Result;
+            //JArray v = JArray.Parse(postedString);
+            dynamic d = JObject.Parse(Convert.ToString(postedString));
+            string employeedID = Convert.ToString(d.employeeID);
+            obj = new DSL_MeterO();
+            DataTable dt;
+            List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
+            if (employeedID!="null")
+            {
+                dt = obj.getPersonalEquipments(employeedID);
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+                Dictionary<string, object> row;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    row = new Dictionary<string, object>();
+                    foreach (DataColumn col in dt.Columns)
+                    {
+                        row.Add(col.ColumnName, dr[col]);
+                    }
+                    rows.Add(row);
+                }
+
+            }
+            
+
+            return rows;
+
+
+        }
+        [HttpPost]
+        public List<Dictionary<string, object>> getPendingDailyLogs(HttpRequestMessage req)
+        {
+            var postedString = req.Content.ReadAsStringAsync().Result;
+            //JArray v = JArray.Parse(postedString);
+            dynamic d = JObject.Parse(Convert.ToString(postedString));
+            string employeedID = Convert.ToString(d.employeeID);
+            string PrCo = Convert.ToString(d.PrCo);
+            obj = new DSL_MeterO();
+            DataTable dt;
+            List<Dictionary<string, object>> rows = new List<Dictionary<string, object>>();
+            if (employeedID != "null")
+            {
+                dt = obj.fetchPendingDailyogs(employeedID,PrCo);
+                JavaScriptSerializer serializer = new JavaScriptSerializer();
+
+                Dictionary<string, object> row;
+                foreach (DataRow dr in dt.Rows)
+                {
+                    row = new Dictionary<string, object>();
+                    foreach (DataColumn col in dt.Columns)
+                    {
+                        row.Add(col.ColumnName, dr[col]);
+                    }
+                    rows.Add(row);
+                }
+
+            }
+
 
             return rows;
 
@@ -497,7 +565,8 @@ namespace ViewPointAPI.Controllers
                     {
                         if (user != null)
                         {
-
+                            
+                            
                             //string employeeID = user.EmployeeId;
                             //check access rights
                             DataTable userRoles;
@@ -518,6 +587,29 @@ namespace ViewPointAPI.Controllers
                                     string Name = user.DisplayName;
                                     row.Add("UserName", username);
                                     row.Add("Name", Name);
+                                    if(user.EmailAddress!=null)
+                                    {
+                                        row.Add("EmailID", user.EmailAddress);
+
+                                    }
+                                    else
+                                    {
+                                        row.Add("EmailID", "");
+
+                                    }
+                                    if(user.EmployeeId!=null)
+                                    {
+                                        row.Add("EmployeeID", Convert.ToString(user.EmployeeId.Split('-')[1]));
+                                        row.Add("Company", Convert.ToString(user.EmployeeId.Split('-')[0]));
+
+                                    }
+                                    else
+                                    {
+                                        row.Add("EmployeeID", "-9999");
+                                        row.Add("Company", "-99");
+
+                                    }
+                                   
                                     row.Add("UserValidated", "true");
                                     row.Add("UserID", user.SamAccountName);
                                     row.Add("SessionID", get_session_id);
@@ -531,6 +623,28 @@ namespace ViewPointAPI.Controllers
                                     string Name = user.DisplayName;
                                     row.Add("UserName", username);
                                     row.Add("Name", Name);
+                                    if (user.EmailAddress != null)
+                                    {
+                                        row.Add("EmailID", user.EmailAddress);
+
+                                    }
+                                    else
+                                    {
+                                        row.Add("EmailID", "");
+
+                                    }
+                                    if (user.EmployeeId != null)
+                                    {
+                                        row.Add("EmployeeID", Convert.ToString(user.EmployeeId.Split('-')[1]));
+                                        row.Add("Company", Convert.ToString(user.EmployeeId.Split('-')[0]));
+
+                                    }
+                                    else
+                                    {
+                                        row.Add("EmployeeID", "-9999");
+                                        row.Add("Company", "-99");
+
+                                    }
                                     row.Add("UserValidated", "true");
                                     row.Add("UserID", user.SamAccountName);
                                     row.Add("SessionID", -1);
@@ -547,6 +661,28 @@ namespace ViewPointAPI.Controllers
                                 string Name = user.DisplayName;
                                 row.Add("UserName", username);
                                 row.Add("Name", Name);
+                                if (user.EmailAddress != null)
+                                {
+                                    row.Add("EmailID", user.EmailAddress);
+
+                                }
+                                else
+                                {
+                                    row.Add("EmailID", "");
+
+                                }
+                                if (user.EmployeeId != null)
+                                {
+                                    row.Add("EmployeeID", Convert.ToString(user.EmployeeId.Split('-')[1]));
+                                    row.Add("Company", Convert.ToString(user.EmployeeId.Split('-')[0]));
+
+                                }
+                                else
+                                {
+                                    row.Add("EmployeeID", "-9999");
+                                    row.Add("Company", "-99");
+
+                                }
                                 row.Add("UserValidated", "true");
                                 row.Add("UserID", user.SamAccountName);
                                 row.Add("SessionID", -1);
@@ -839,6 +975,86 @@ namespace ViewPointAPI.Controllers
 
             }
         }
+        //private string get_Company(UserPrincipal user)
+        //{
+        //    string comapny = "";
+        //    DirectoryEntry de = (user.GetUnderlyingObject() as DirectoryEntry);
+        //    DirectorySearcher deSearch = new DirectorySearcher(de);
+        //    if (de != null)
+        //    {
+        //        deSearch.PropertiesToLoad.Add("co");
+        //        SearchResultCollection results = deSearch.FindAll();
+        //        if (results != null && results.Count > 0)
+        //        {
+        //            ResultPropertyCollection rpc = results[0].Properties;
+        //            foreach (string rp in rpc.PropertyNames)
+        //            {
+        //                if (rp == "co")
+        //                    comapny=rpc["co"][0].ToString();
+        //            }
+        //        }
+
+        //    }
+        //    return comapny;
+        //}
+
+        [HttpPost]
+        public string AddTripDetails(HttpRequestMessage req)
+        {
+            var postedString = req.Content.ReadAsStringAsync().Result;
+            dynamic LogCollection = JArray.Parse(postedString);
+            
+            JArray pushJob = new JArray();
+            foreach (var logEntry in LogCollection)
+            {
+                JObject item = new JObject();
+                JObject itemPushJob = new JObject();
+                // for pushing into Viewpoint Database daily Log Table
+                itemPushJob.Add(new JProperty("PrCo", Convert.ToString(logEntry.PrCo)));
+                itemPushJob.Add(new JProperty("EmployeeID", Convert.ToString(logEntry.EmployeeID)));
+                itemPushJob.Add(new JProperty("EmailID", Convert.ToString(logEntry.EmailID)));
+                itemPushJob.Add(new JProperty("EquipmentID", Convert.ToString(logEntry.EquipmentID)));
+                itemPushJob.Add(new JProperty("EquipmentCompany", Convert.ToString(WebConfigurationManager.AppSettings["EquipmentCompany"])));
+                itemPushJob.Add(new JProperty("EquipmentDesc", Convert.ToString(logEntry.EquipmentDesc)));
+                itemPushJob.Add(new JProperty("TDate", Convert.ToString(logEntry.TDate)));
+                itemPushJob.Add(new JProperty("TDesc", Convert.ToString(logEntry.TDesc)));
+                itemPushJob.Add(new JProperty("TFrom", Convert.ToString(logEntry.TFrom)));
+                itemPushJob.Add(new JProperty("TTo", Convert.ToString(logEntry.TTo)));
+                itemPushJob.Add(new JProperty("TCat", Convert.ToString(logEntry.TCat)));
+                itemPushJob.Add(new JProperty("TMiles", Convert.ToString(logEntry.TMiles)));
+                itemPushJob.Add(new JProperty("TSubmittedDate", ""));
+                itemPushJob.Add(new JProperty("TStatus", Convert.ToString("Saved")));
+                itemPushJob.Add(new JProperty("TCreatedBy", Convert.ToString(logEntry.TCreatedBy)));
+                itemPushJob.Add(new JProperty("TCreatedDate", Convert.ToString(DateTime.Now)));
+                pushJob.Add(itemPushJob);
+
+            }
+           
+            try
+            {
+                obj = new DSL_MeterO();
+
+
+                int insertStatus = obj.saveTrip(pushJob);
+                if (insertStatus == 1)
+                    return "Success";
+                else
+                    return "failed";
+
+
+                //return "Success";
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                return ("failed");
+
+            }
+        }
+        
 
 
 
