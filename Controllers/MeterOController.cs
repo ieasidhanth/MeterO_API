@@ -538,6 +538,113 @@ namespace ViewPointAPI.Controllers
             }
         }
 
+        [HttpPost]
+        public string updatePersonalLogEntry(HttpRequestMessage req)
+        {
+            var postedString = req.Content.ReadAsStringAsync().Result;
+            dynamic v = JArray.Parse(postedString);
+            
+            JArray pushJob = new JArray();
+            foreach (var entry in v)
+            {
+                JObject item = new JObject();
+                JObject itemPushJob = new JObject();
+
+
+
+                // for pushing into Transit Database
+                itemPushJob.Add(new JProperty("Trip_ID", Convert.ToString(entry.Trip_ID)));
+                itemPushJob.Add(new JProperty("TripDate", entry.TDate));
+                itemPushJob.Add(new JProperty("Trip_Desc", Convert.ToString(entry.TDesc)));
+                itemPushJob.Add(new JProperty("Trip_From", Convert.ToString(entry.TFrom)));
+
+                itemPushJob.Add(new JProperty("Trip_To", Convert.ToString(entry.TTo)));
+
+                itemPushJob.Add(new JProperty("Trip_Category", Convert.ToString(entry.TCat)));
+                itemPushJob.Add(new JProperty("Miles", Convert.ToString(entry.TMiles)));
+
+                pushJob.Add(itemPushJob);
+
+
+
+
+            }
+            obj = new DSL_MeterO();
+            try
+            {
+
+
+                Boolean DBUpdate = obj.updateLogEntry((JObject)pushJob[0]);
+                if (DBUpdate)
+                    return "Success";
+                else
+                    return "failed";
+
+
+
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                return ("failed");
+
+            }
+        }
+        
+
+
+       [HttpPost]
+        public string deleteLogEntry(HttpRequestMessage req)
+        {
+            var postedString = req.Content.ReadAsStringAsync().Result;
+            dynamic v = JArray.Parse(postedString);
+
+            JArray pushJob = new JArray();
+            foreach (var entry in v)
+            {
+                JObject item = new JObject();
+                JObject itemPushJob = new JObject();
+
+
+
+                // for pushing into Transit Database
+                itemPushJob.Add(new JProperty("Trip_ID", Convert.ToString(entry.Trip_ID)));
+                
+
+                pushJob.Add(itemPushJob);
+
+
+
+
+            }
+            obj = new DSL_MeterO();
+            try
+            {
+
+
+                Boolean DBUpdate = obj.DeleteLogEntry((JObject)pushJob[0]);
+                if (DBUpdate)
+                    return "Success";
+                else
+                    return "failed";
+
+
+
+
+
+
+
+            }
+            catch (Exception ex)
+            {
+                return ("failed");
+
+            }
+        }
+
 
 
 

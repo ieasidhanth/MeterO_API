@@ -126,7 +126,7 @@ namespace ViewPointAPI
                 using (SqlConnection VpointDBConn = new SqlConnection(WebConfigurationManager.ConnectionStrings["viewPointDBConnection"].ToString()))
                 {
                     VpointDBConn.Open();
-                    SqlDataAdapter adap = new SqlDataAdapter("SELECT [Equipment],[VINNumber] as SerialNo,[Description],[LicensePlateNo] as LicenseNumber,[HourReading],[OdoReading] ,[udJobSiteAssignment] as JobAssign ,[udReferenceNumber],udMeterFieldNotes as Notes from Viewpoint.dbo.EMEM where Operator='" + employeeID + "' and EMCo='53' and udMeterType='Metered'", VpointDBConn);
+                    SqlDataAdapter adap = new SqlDataAdapter("SELECT [Equipment],[VINNumber] as SerialNo,[Description],[LicensePlateNo] as LicenseNumber,[HourReading],[OdoReading] ,[udJobSiteAssignment] as JobAssign ,[udReferenceNumber],udMeterFieldNotes as Notes from Viewpoint.dbo.EMEM where Operator='" + employeeID + "' and EMCo='53' and Department=20 and udMeterType='Metered'", VpointDBConn);
                     dt_viewPoint = new DataTable();
                     adap.Fill(dt_viewPoint);
                     VpointDBConn.Dispose();
@@ -383,7 +383,7 @@ namespace ViewPointAPI
                     row[0] = Convert.ToString(obj["Equipment"]);
                     row[1] = Convert.ToString(obj["SerialNo"]);
                     row[2] = Convert.ToString(obj["Description"]);
-                    row[3] = Convert.ToString(obj["License_No"]);
+                    row[3] = Convert.ToString(obj["License No"]);
                     row[4] = Convert.ToString(obj["Job_Assigned"]);
                     row[5] = Convert.ToString(obj["Last Recorderd Hours"]);
                     row[6] = Convert.ToString(obj["Last Recorded Odometer"]);
@@ -578,7 +578,7 @@ namespace ViewPointAPI
                 using (SqlConnection viewpointDBConnection = new SqlConnection(WebConfigurationManager.ConnectionStrings["viewPointDBConnection"].ToString()))
                 {
                     viewpointDBConnection.Open();
-                    string query = "select  * from   [Viewpoint].[IEA\\ssharma].udMeterODailyLog where EmployeeID=" +Convert.ToInt32(employeeID) + " and Status='Saved' and PrCo=" + Convert.ToInt32(company);
+                    string query = "select  *,CONVERT(datetime,[CreatedDate],101) as CDate from   [Viewpoint].[IEA\\ssharma].udMeterODailyLog where EmployeeID=" + Convert.ToInt32(employeeID) + " and Status='Saved' and PrCo=" + Convert.ToInt32(company)+ " order by CDate desc;";
                     SqlDataAdapter adap = new SqlDataAdapter(query, viewpointDBConnection);
                     adap.Fill(dt);
                     viewpointDBConnection.Close();
@@ -644,6 +644,94 @@ namespace ViewPointAPI
                 SqlCommand cmd = new SqlCommand("update EMEM set [udReferenceNumber]= @RefNo from EMEM where [EMCo]=53 and [Equipment]=@EquipmentID", viewpointDBConnection);
                 cmd.Parameters.AddWithValue("@RefNo", referenceNo);
                 cmd.Parameters.AddWithValue("@EquipmentID", equipmentID);
+                try
+                {
+                    if ((cmd.ExecuteNonQuery()) > 0)
+                    {
+                        viewpointDBConnection.Dispose();
+                        return true;
+
+                    }
+                    else
+                    {
+                        viewpointDBConnection.Dispose();
+                        return false;
+                    }
+
+                }
+                catch (SqlException ex)
+                {
+                    viewpointDBConnection.Dispose();
+                    return false;
+                }
+
+            }
+
+        }
+        //update personal log entry
+        public Boolean updateLogEntry(JObject entry)
+        {
+            int TripID = Convert.ToInt32(entry["Trip_ID"]);
+            string TripDate = Convert.ToString(entry["TripDate"]);
+            string TripDesc = Convert.ToString(entry["Trip_Desc"]);
+            string TripFrom = Convert.ToString(entry["Trip_From"]);
+            string TripTo = Convert.ToString(entry["Trip_To"]);
+            string TripCategory = Convert.ToString(entry["Trip_Category"]);
+            string Miles = Convert.ToString(entry["Miles"]);
+            string ModifiedDate = Convert.ToString(DateTime.Now);
+            using (SqlConnection viewpointDBConnection = new SqlConnection(WebConfigurationManager.ConnectionStrings["viewPointDBConnection"].ToString()))
+            {
+                viewpointDBConnection.Open();
+                SqlCommand cmd = new SqlCommand("update [Viewpoint].[IEA\\ssharma].udMeterODailyLog set [TripDate]= @TripDate,[Trip_Desc]=@TripDesc,[Trip_From]=@TripFrom,[Trip_To]=@TripTo,[Trip_Category]=@TripCat,[Miles]=@Miles,[ModifiedDate]=@ModifiedDate from EMEM where [Trip_ID]=@Trip_ID", viewpointDBConnection);
+                cmd.Parameters.AddWithValue("@TripDate", TripDate);
+                cmd.Parameters.AddWithValue("@TripDesc", TripDesc);
+                cmd.Parameters.AddWithValue("@TripFrom", TripFrom);
+                cmd.Parameters.AddWithValue("@TripTo", TripTo);
+                cmd.Parameters.AddWithValue("@TripCat", TripCategory);
+                cmd.Parameters.AddWithValue("@Miles", Miles);
+                cmd.Parameters.AddWithValue("@ModifiedDate", ModifiedDate);
+                cmd.Parameters.AddWithValue("@Trip_ID", TripID);
+                
+                try
+                {
+                    if ((cmd.ExecuteNonQuery()) > 0)
+                    {
+                        viewpointDBConnection.Dispose();
+                        return true;
+
+                    }
+                    else
+                    {
+                        viewpointDBConnection.Dispose();
+                        return false;
+                    }
+
+                }
+                catch (SqlException ex)
+                {
+                    viewpointDBConnection.Dispose();
+                    return false;
+                }
+
+            }
+
+        }
+        
+        //updates the row with status deleted and modified date
+        public Boolean DeleteLogEntry(JObject entry)
+        {
+            int TripID = Convert.ToInt32(entry["Trip_ID"]);
+           
+            string Status = "Deleted";
+            string ModifiedDate = Convert.ToString(DateTime.Now);
+            using (SqlConnection viewpointDBConnection = new SqlConnection(WebConfigurationManager.ConnectionStrings["viewPointDBConnection"].ToString()))
+            {
+                viewpointDBConnection.Open();
+                SqlCommand cmd = new SqlCommand("update [Viewpoint].[IEA\\ssharma].udMeterODailyLog set [Status]=@Status,[ModifiedDate]=@ModifiedDate from EMEM where [Trip_ID]=@Trip_ID", viewpointDBConnection);
+                cmd.Parameters.AddWithValue("@Status", Status);
+                cmd.Parameters.AddWithValue("@ModifiedDate", ModifiedDate);
+                cmd.Parameters.AddWithValue("@Trip_ID", TripID);
+
                 try
                 {
                     if ((cmd.ExecuteNonQuery()) > 0)

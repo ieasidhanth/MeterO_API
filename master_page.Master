@@ -1,0 +1,156 @@
+﻿<%@ Master Language="C#" AutoEventWireup="true" CodeBehind="master_page.master.cs" Inherits="IEA_InventoryMgmt.master_page" %>
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content=""/>
+    <meta name="author" content=""/>
+
+    <title>IEA Power apps</title>
+
+    <!-- Bootstrap Core CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet"/>
+
+   
+
+    <!-- Custom CSS -->
+    <link href="css/logo-nav.css" rel="stylesheet"/>
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+         <!-- jQuery -->
+    <script src="js/jquery.js"></script>
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/angular.min.js""></script>
+    <!--<script src="js/ng-table.js"></script>
+    <script src="js/NqJzRo.js"></script>
+    <script src="js/table.js"></script>
+    <script src="js/main.js"></script>-->
+    <link rel="styleSheet" href="css/ui-grid-min.css"/>
+    <link rel="styleSheet" href="css/UI-Grid-App.css"/>
+    <link rel="stylesheet" href="css/abn-tree.css" />
+    <link rel="stylesheet" href="css/sticky-footer.css" />
+    
+    <script src="js/main.js"></script>
+  
+
+
+
+</head>
+<body>
+    <form id="form1" runat="server">
+    
+        <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+        <div class="container">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand" href="#">
+                    <img src="img/IEA__0005_Corporate.png" alt=""/>
+                </a>
+            </div>
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li style="float:left !important">
+                        <a href="#">IEA PowerApps</a>
+                    </li>
+                    <%--<li>
+                        <a href="Icontrol_login.aspx">Icontrol</a>
+                    </li>--%>
+                    <li style="float:left !important">
+                        <a href="mailto:helpdesk@iea.net">Contact</a>
+                    </li>
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container -->
+    </nav>
+        <div class="container">
+        <asp:ContentPlaceHolder ID="ContentPlaceHolder1" runat="server">
+        
+            <asp:Menu ID="Menu1" runat="server" BackColor="#B5C7DE" DynamicHorizontalOffset="2" Font-Names="Verdana" Font-Size="0.8em" ForeColor="#284E98" Height="165px" StaticSubMenuIndent="10px" Width="232px">
+                <DynamicHoverStyle BackColor="#284E98" ForeColor="White" />
+                <DynamicMenuItemStyle HorizontalPadding="5px" VerticalPadding="2px" />
+                <DynamicMenuStyle BackColor="#B5C7DE" />
+                <DynamicSelectedStyle BackColor="#507CD1" />
+                <Items>
+                    <asp:MenuItem Text="Home" Value="Home">
+                        <asp:MenuItem Target="Applications.aspx" Text="Applications" Value="Applications"></asp:MenuItem>
+                        <asp:MenuItem Text="Users" Value="Users"></asp:MenuItem>
+                    </asp:MenuItem>
+                </Items>
+                <StaticHoverStyle BackColor="#284E98" ForeColor="White" />
+                <StaticMenuItemStyle HorizontalPadding="5px" VerticalPadding="2px" />
+                <StaticSelectedStyle BackColor="#507CD1" />
+            </asp:Menu>
+        
+        </asp:ContentPlaceHolder>
+       </div>
+        
+          
+          
+        
+        
+        <%--<div class="copyright">
+          <div class="container">
+            <div class="col-md-6">
+              <h5 class="text-muted">© 2016 - All Rights with IEA</h5>
+            </div>
+            
+          </div>
+        </div>--%>
+       
+        
+    </form>
+   <footer class="footer">
+      <div class="container">
+          <div style="float:left;width:400px;margin-top:10px">
+            <p class="text-muted h5">© 2016 - All Rights with IEA. Developed by IEA Dev Team</p>
+         </div>
+               <div style="float:right;width:50px;margin-top:10px">
+            <p class="text-muted h5">Powered</p>
+            </div>
+             <div style="float:right;">
+             <ul style="list-style:none;" id="iconlist" >
+              
+              <li class="iconlistitem">&nbsp;</li>
+                 <li class="iconlistitem">&nbsp;</li>
+              <li class="iconlistitem"><a href="https://angularjs.org/" ><img src="img/angular_resized.png" /></a></li>
+              <li class="iconlistitem">&nbsp;</li>
+                 <li>&nbsp;</li>
+              <li class="iconlistitem"><a href="https://www.asp.net/web-api" ><img src="img/icon-microsoft-net-big.png"/></a></li>
+              <li class="iconlistitem">&nbsp;</li>
+                 <li class="iconlistitem">&nbsp;</li>
+              <li class="iconlistitem"><a href="https://en.wikipedia.org/wiki/HTML5"><img src="img/html5-logo.png"/></a></li>
+            </ul>
+           
+             </div>
+
+
+      
+      </div>
+     
+
+   </footer>
+  
+</body>
+    
+</html>
